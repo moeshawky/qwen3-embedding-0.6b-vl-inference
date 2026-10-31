@@ -1,0 +1,983 @@
+{
+  "tool": "q8_floor_check",
+  "generated_utc": "2026-10-21T22:31:07.094665+00:00",
+  "environment": {
+    "python": "3.13.15",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.1",
+    "numpy": "2.1.3",
+    "cuda_available": true,
+    "device": "cuda",
+    "device_name": "Tesla T4",
+    "dtype": "float32",
+    "tf32_matmul": false,
+    "tf32_cudnn": false
+  },
+  "load": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "control_fp32": {
+    "label": "fp32_control",
+    "min_image_embeds_cosine": 0.9999999999999998,
+    "min_image_embeds_fixture": "square",
+    "fixtures": [
+      {
+        "name": "square",
+        "image_embeds": {
+          "cosine": 0.9999999999999998,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          }
+        }
+      },
+      {
+        "name": "landscape",
+        "image_embeds": {
+          "cosine": 1.0,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          }
+        }
+      },
+      {
+        "name": "portrait",
+        "image_embeds": {
+          "cosine": 0.9999999999999998,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          }
+        }
+      },
+      {
+        "name": "odd",
+        "image_embeds": {
+          "cosine": 1.0,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          }
+        }
+      },
+      {
+        "name": "tiny",
+        "image_embeds": {
+          "cosine": 0.9999999999999999,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999999999999998,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 0.9999999999999998,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          }
+        }
+      },
+      {
+        "name": "wide",
+        "image_embeds": {
+          "cosine": 1.0,
+          "max_abs_diff": 0.0
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_0": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_1": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9999999999999999,
+            "max_abs_diff": 0.0
+          },
+          "encoder_layer_26": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "post_layernorm": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler": {
+            "cosine": 1.0000000000000002,
+            "max_abs_diff": 0.0
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9999999999999998,
+            "max_abs_diff": 0.0
+          },
+          "linear_projection": {
+            "cosine": 1.0,
+            "max_abs_diff": 0.0
+          }
+        }
+      }
+    ],
+    "oracle_inputs": {
+      "square": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          16,
+          16
+        ]
+      },
+      "landscape": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          35,
+          7
+        ]
+      },
+      "portrait": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          7,
+          35
+        ]
+      },
+      "odd": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          21,
+          12
+        ]
+      },
+      "tiny": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          16,
+          16
+        ]
+      },
+      "wide": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          64,
+          4
+        ]
+      }
+    },
+    "passed": true,
+    "threshold_cosine": 0.999999
+  },
+  "artifacts": {
+    "mmproj-qwen3-embedding-0.6b-vl-v1.0-q8_0.gguf": "9e3bb2fbfbc1dd7f43706a70c26534315ad886b0636f90a471391ea6a9c3782a",
+    "model.safetensors": "fd8469d3604876efe2ea92750c7c9fd5a2ab85c4508de9287334c91c566e6a05"
+  },
+  "q8": {
+    "label": "q8",
+    "min_image_embeds_cosine": 0.994736746231073,
+    "min_image_embeds_fixture": "tiny",
+    "fixtures": [
+      {
+        "name": "square",
+        "image_embeds": {
+          "cosine": 0.9990506894921479,
+          "max_abs_diff": 0.0053364187479019165
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999590427354516,
+            "max_abs_diff": 0.2403496503829956
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9998618136238082,
+            "max_abs_diff": 0.22966575622558594
+          },
+          "encoder_layer_1": {
+            "cosine": 0.9995804113262272,
+            "max_abs_diff": 0.23385190963745117
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9998876728628815,
+            "max_abs_diff": 3.1502041816711426
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9898580546477361,
+            "max_abs_diff": 11.477178573608398
+          },
+          "post_layernorm": {
+            "cosine": 0.944802719133875,
+            "max_abs_diff": 10.334108054637909
+          },
+          "map_pooler": {
+            "cosine": 0.9991760886795596,
+            "max_abs_diff": 0.05526310205459595
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9991760887078196,
+            "max_abs_diff": 0.0043713003396987915
+          },
+          "linear_projection": {
+            "cosine": 0.9990506894502471,
+            "max_abs_diff": 0.0030610933899879456
+          }
+        }
+      },
+      {
+        "name": "landscape",
+        "image_embeds": {
+          "cosine": 0.999660182727091,
+          "max_abs_diff": 0.0024060234427452087
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999845629595757,
+            "max_abs_diff": 0.08508238196372986
+          },
+          "encoder_layer_0": {
+            "cosine": 0.999932641215799,
+            "max_abs_diff": 0.08405544608831406
+          },
+          "encoder_layer_1": {
+            "cosine": 0.9997914277792821,
+            "max_abs_diff": 0.10829979181289673
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9997348951225294,
+            "max_abs_diff": 17.38873291015625
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9919072112154264,
+            "max_abs_diff": 19.875256538391113
+          },
+          "post_layernorm": {
+            "cosine": 0.972719866338317,
+            "max_abs_diff": 11.443154335021973
+          },
+          "map_pooler": {
+            "cosine": 0.9997778885025591,
+            "max_abs_diff": 0.03917503356933594
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9997778884727185,
+            "max_abs_diff": 0.002354841213673353
+          },
+          "linear_projection": {
+            "cosine": 0.9996601826878595,
+            "max_abs_diff": 0.0013013482093811035
+          }
+        }
+      },
+      {
+        "name": "portrait",
+        "image_embeds": {
+          "cosine": 0.9995890320838096,
+          "max_abs_diff": 0.00321502098813653
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999839687476034,
+            "max_abs_diff": 0.10191166400909424
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999365146037642,
+            "max_abs_diff": 0.09262609481811523
+          },
+          "encoder_layer_1": {
+            "cosine": 0.9997661731864405,
+            "max_abs_diff": 0.09512662887573242
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9998277969796721,
+            "max_abs_diff": 8.23095703125
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9851504037667163,
+            "max_abs_diff": 15.8622145652771
+          },
+          "post_layernorm": {
+            "cosine": 0.9627925333129927,
+            "max_abs_diff": 14.074040412902832
+          },
+          "map_pooler": {
+            "cosine": 0.9997543676416252,
+            "max_abs_diff": 0.03296691179275513
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9997543676691809,
+            "max_abs_diff": 0.002431873232126236
+          },
+          "linear_projection": {
+            "cosine": 0.9995890321262092,
+            "max_abs_diff": 0.0016604214906692505
+          }
+        }
+      },
+      {
+        "name": "odd",
+        "image_embeds": {
+          "cosine": 0.999312098299621,
+          "max_abs_diff": 0.004026017151772976
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999779348093191,
+            "max_abs_diff": 0.16001969575881958
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999140898366444,
+            "max_abs_diff": 0.14680957794189453
+          },
+          "encoder_layer_1": {
+            "cosine": 0.9997187437994283,
+            "max_abs_diff": 0.15151190757751465
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9999099591345535,
+            "max_abs_diff": 4.1036376953125
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9926230336910005,
+            "max_abs_diff": 17.959607124328613
+          },
+          "post_layernorm": {
+            "cosine": 0.9651953710403872,
+            "max_abs_diff": 17.977511882781982
+          },
+          "map_pooler": {
+            "cosine": 0.9995510306779313,
+            "max_abs_diff": 0.04803547263145447
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9995510306487463,
+            "max_abs_diff": 0.003700471483170986
+          },
+          "linear_projection": {
+            "cosine": 0.999312098268062,
+            "max_abs_diff": 0.0022294409573078156
+          }
+        }
+      },
+      {
+        "name": "tiny",
+        "image_embeds": {
+          "cosine": 0.994736746231073,
+          "max_abs_diff": 0.011212941550184041
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999589961554485,
+            "max_abs_diff": 0.24044054746627808
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9998818504046907,
+            "max_abs_diff": 0.22903680801391602
+          },
+          "encoder_layer_1": {
+            "cosine": 0.999574310741639,
+            "max_abs_diff": 0.23166251182556152
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9998518075031368,
+            "max_abs_diff": 7.071950793266296
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9861317742233715,
+            "max_abs_diff": 35.293453216552734
+          },
+          "post_layernorm": {
+            "cosine": 0.9295931187772746,
+            "max_abs_diff": 19.950878143310547
+          },
+          "map_pooler": {
+            "cosine": 0.9957107421296312,
+            "max_abs_diff": 0.20957374572753906
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9957107422393873,
+            "max_abs_diff": 0.009538289159536362
+          },
+          "linear_projection": {
+            "cosine": 0.9947367460719314,
+            "max_abs_diff": 0.006427127867937088
+          }
+        }
+      },
+      {
+        "name": "wide",
+        "image_embeds": {
+          "cosine": 0.9995784988143476,
+          "max_abs_diff": 0.004445382161065936
+        },
+        "intermediates": {
+          "patch_plus_position": {
+            "cosine": 0.9999899650951753,
+            "max_abs_diff": 0.038581036031246185
+          },
+          "encoder_layer_0": {
+            "cosine": 0.9999534640279792,
+            "max_abs_diff": 0.07928934693336487
+          },
+          "encoder_layer_1": {
+            "cosine": 0.999871141309719,
+            "max_abs_diff": 0.0681542158126831
+          },
+          "encoder_layer_13": {
+            "cosine": 0.9973375727304724,
+            "max_abs_diff": 2.597450077533722
+          },
+          "encoder_layer_26": {
+            "cosine": 0.9847632783385522,
+            "max_abs_diff": 9.209143877029419
+          },
+          "post_layernorm": {
+            "cosine": 0.9757669593800115,
+            "max_abs_diff": 10.258299827575684
+          },
+          "map_pooler": {
+            "cosine": 0.9997913434472079,
+            "max_abs_diff": 0.03167523443698883
+          },
+          "map_pooler_norm": {
+            "cosine": 0.9997913434674905,
+            "max_abs_diff": 0.0023567024618387222
+          },
+          "linear_projection": {
+            "cosine": 0.999578498839054,
+            "max_abs_diff": 0.002326399553567171
+          }
+        }
+      }
+    ],
+    "oracle_inputs": {
+      "square": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          16,
+          16
+        ]
+      },
+      "landscape": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          35,
+          7
+        ]
+      },
+      "portrait": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          7,
+          35
+        ]
+      },
+      "odd": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          21,
+          12
+        ]
+      },
+      "tiny": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          16,
+          16
+        ]
+      },
+      "wide": {
+        "pixel_values_shape": [
+          256,
+          768
+        ],
+        "pixel_attention_mask_shape": [
+          256
+        ],
+        "spatial_shapes": [
+          64,
+          4
+        ]
+      }
+    },
+    "swaps": {
+      "total": 450,
+      "changed": 170,
+      "unchanged": 280,
+      "padded": 28,
+      "min_direct_cosine": 0.9999517713100522,
+      "min_direct_cosine_tensor": "v.position_embd.weight",
+      "max_transposed_cosine": 0.0036453194038922492,
+      "square_tensors_checked": 109
+    },
+    "floor": {
+      "min_cosine": 0.994736746231073,
+      "min_cosine_fixture": "tiny",
+      "threshold": 0.999,
+      "meets_threshold": false
+    },
+    "negative_control": {
+      "weights_changed": 170,
+      "q8_max_abs_diff_vs_fp32_oracle": 0.011212941550184041,
+      "passed": true
+    }
+  },
+  "persisted_tensors": {
+    "fp32_square": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_square.npz",
+      "sha256": "c237a8e9a11e66d8ceac950f9db9ee05b0245bf924decff66ff1f3d58600bd09",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "fp32_landscape": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_landscape.npz",
+      "sha256": "8be87a742616852de336c51517aa83fc1dc9645fd53c0ef1444a9650ee78c44b",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "fp32_portrait": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_portrait.npz",
+      "sha256": "f8dfe548d4e29434c6a6e69f219eae6a1a6b3f7d10e4fca11fc72128958e22f8",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "fp32_odd": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_odd.npz",
+      "sha256": "277bfcf9df63a92e3583063c7064ebb9735a3f590e155960b0e541c923574a4d",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "fp32_tiny": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_tiny.npz",
+      "sha256": "5dfa04f228fee8cf40822f07aa3d2b19b80fc491191ed5dc77d7f6e4971c7c05",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "fp32_wide": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/fp32_wide.npz",
+      "sha256": "6d2ddfd89f7969dc7b7bc525136b2ccc50c0b6377208fa3fcdb0bf62e39c5d8a",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_square": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_square.npz",
+      "sha256": "5c6a4f933e90a16c3196afe69f78226e2b96c06ffd03a1cd19bc28807f8113ad",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_landscape": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_landscape.npz",
+      "sha256": "ee68e886202ac3b58cc62010cc5fc1cffe5a2e07d41251d3af04187dbdb7b04c",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_portrait": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_portrait.npz",
+      "sha256": "5c9d17fa7d5a5f23ec8ab9ad31a5c327dc63ed1c0eddb3c0b5b38820616d0aec",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_odd": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_odd.npz",
+      "sha256": "a7c8cfe049865b688e3e195a5bcfa0be3299c316ecab9da19aacf59a5707069b",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_tiny": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_tiny.npz",
+      "sha256": "0b95684e0a14de5acf6e136c932bbd43708dcf6e4ac2729953c7ca461af2fd95",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    },
+    "q8_wide": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/q8_wide.npz",
+      "sha256": "6af33c6e6513779d089ab2410e0580aa848a596e80014ca73292ba089cc2ccd4",
+      "keys": [
+        "patch_plus_position",
+        "encoder_layer_0",
+        "encoder_layer_1",
+        "encoder_layer_13",
+        "encoder_layer_26",
+        "post_layernorm",
+        "map_pooler",
+        "map_pooler_norm",
+        "linear_projection",
+        "image_embeds"
+      ]
+    }
+  },
+  "confirmation": {
+    "previous_report_available": true,
+    "control_cosine_drift": {
+      "square": 0.0,
+      "landscape": 0.0,
+      "portrait": 0.0,
+      "odd": 0.0,
+      "tiny": 0.0,
+      "wide": 0.0
+    },
+    "q8_cosine_drift": {
+      "square": 0.0,
+      "landscape": 0.0,
+      "portrait": 0.0,
+      "odd": 0.0,
+      "tiny": 0.0,
+      "wide": 0.0
+    },
+    "max_control_cosine_drift": 0.0,
+    "max_q8_cosine_drift": 0.0,
+    "previous_floor": 0.994736746231073,
+    "current_floor": 0.994736746231073,
+    "floor_drift": 0.0,
+    "floor_unchanged": true
+  }
+}

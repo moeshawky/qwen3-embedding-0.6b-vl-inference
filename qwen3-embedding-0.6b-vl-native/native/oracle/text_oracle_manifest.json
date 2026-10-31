@@ -1,0 +1,70 @@
+{
+  "model_dir": "/content/qwen3-embedding-0.6b-vl",
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "torch_version": "2.11.0+cu130",
+  "numpy_version": "2.1.3",
+  "dtype": "float32",
+  "tf32": {
+    "matmul": false,
+    "cudnn": false
+  },
+  "strict_load": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": []
+  },
+  "prompts": [
+    "a synthetic square gradient image with red, green and blue rectangles",
+    "a wide landscape photograph of a green field next to a blue sky",
+    "a tall portrait photograph of a red brick wall",
+    "an odd sized image with an unusual aspect ratio",
+    "a tiny blurry low resolution image",
+    "an extremely wide panoramic strip",
+    "a photo of a cat",
+    "a photo of a dog",
+    "a diagram with text and boxes",
+    "a chart showing a bar graph",
+    "a screenshot of a terminal window",
+    "a plate of spaghetti on a table",
+    "a snowy mountain landscape",
+    "a city street at night with neon signs",
+    "a close up of a sunflower",
+    "a book cover with a title on it"
+  ],
+  "fixture_names": [
+    "square",
+    "landscape",
+    "portrait",
+    "odd",
+    "tiny",
+    "wide"
+  ],
+  "correct_prompt_index": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "eos_id": 151643,
+  "compat_head_cosine": {
+    "min": 0.9999447370794612,
+    "median": 0.9999535600329387,
+    "max": 0.9999638781458171
+  },
+  "pool_rule_discriminator_cosine": {
+    "min": 0.4528924152393125,
+    "median": 0.573567390595238,
+    "max": 0.7223944929314386
+  },
+  "text_oracle": {
+    "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/text_oracle.npz",
+    "sha256": "616b8758df5fe5e696dba702291014c9c9d71bf94531d5a367009604a32501da"
+  },
+  "retrieval_reference": {
+    "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/retrieval_reference.npz",
+    "sha256": "2bf12dd3365cd591e6d498e8ff55bd5d3836e1e2a7672f6f64c0b5d1c028183c"
+  }
+}

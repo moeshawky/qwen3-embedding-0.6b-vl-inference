@@ -1,0 +1,189 @@
+{
+  "tool": "q8_content_probe",
+  "generated_utc": "2026-10-21T23:07:30.460988+00:00",
+  "environment": {
+    "python": "3.13.15",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.1",
+    "numpy": "2.1.3",
+    "cuda_available": true,
+    "device": "cuda",
+    "device_name": "Tesla T4",
+    "dtype": "float32",
+    "tf32_matmul": false,
+    "tf32_cudnn": false
+  },
+  "load": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "construction": {
+    "source_size": [
+      112,
+      112
+    ],
+    "seed": 1005,
+    "recipe": "gradient + 3 rectangles + per-pixel Gaussian noise, clip [0,255]",
+    "noise_stds": {
+      "tiny_smooth": {
+        "base": 12.0,
+        "extra": 0.0
+      },
+      "tiny_noisy": {
+        "base": 12.0,
+        "extra": 60.0
+      },
+      "tiny_flat": {
+        "base": 0.0,
+        "extra": 0.0
+      }
+    },
+    "grid": [
+      16,
+      16
+    ],
+    "valid_patches": 256
+  },
+  "anchor": {
+    "tiny_png_sha256": "b4b9919cc54faf818e54cae101193ac5ca60b48891cc85b30d9cacf64720b95a",
+    "tiny_smooth_png_sha256": "b4b9919cc54faf818e54cae101193ac5ca60b48891cc85b30d9cacf64720b95a",
+    "tiny_smooth_is_byte_identical_to_tiny": true
+  },
+  "swap": {
+    "changed": 170,
+    "unchanged": 280,
+    "total": 450
+  },
+  "negative_control": {
+    "image": "tiny_noisy",
+    "image_embeds_cosine": 1.0,
+    "post_layernorm_cosine": 0.9999999999999999,
+    "passed": true
+  },
+  "images": [
+    {
+      "name": "tiny_smooth",
+      "laplacian_mean_abs": 30.37201561983471,
+      "patch_mean_std": 34.8241777728653,
+      "model_input_std": 36.58875735143976,
+      "fp32_control_cosine": 0.9999999999999999,
+      "q8_floor_cosine": 0.994736746231073,
+      "q8_max_abs_diff": 0.011212941550184041,
+      "intermediate_cosines": {
+        "encoder_layer_0": 0.9998818504046907,
+        "encoder_layer_1": 0.999574310741639,
+        "encoder_layer_13": 0.9998518075031368,
+        "encoder_layer_26": 0.9861317742233715,
+        "map_pooler": 0.9957107421296312,
+        "patch_plus_position": 0.9999589961554485,
+        "post_layernorm": 0.9295931187772746
+      }
+    },
+    {
+      "name": "tiny_noisy",
+      "laplacian_mean_abs": 128.46916380165288,
+      "patch_mean_std": 31.234339914701795,
+      "model_input_std": 40.001054976597395,
+      "fp32_control_cosine": 1.0,
+      "q8_floor_cosine": 0.9993225847673683,
+      "q8_max_abs_diff": 0.005526582230231725,
+      "intermediate_cosines": {
+        "encoder_layer_0": 0.9999062396551351,
+        "encoder_layer_1": 0.9997942749116994,
+        "encoder_layer_13": 0.9999747619738131,
+        "encoder_layer_26": 0.9953464135311879,
+        "map_pooler": 0.9994075241266911,
+        "patch_plus_position": 0.9999598298887838,
+        "post_layernorm": 0.9774933765355611
+      }
+    },
+    {
+      "name": "tiny_flat",
+      "laplacian_mean_abs": 3.5049029752066114,
+      "patch_mean_std": 34.8880432783076,
+      "model_input_std": 36.26402874278831,
+      "fp32_control_cosine": 0.9999999999999999,
+      "q8_floor_cosine": 0.9941061679952111,
+      "q8_max_abs_diff": 0.014086192473769188,
+      "intermediate_cosines": {
+        "encoder_layer_0": 0.9998785999862008,
+        "encoder_layer_1": 0.9993746931859189,
+        "encoder_layer_13": 0.9994167894715665,
+        "encoder_layer_26": 0.9677491644403163,
+        "map_pooler": 0.9934299181983609,
+        "patch_plus_position": 0.9999589170666606,
+        "post_layernorm": 0.814406524131032
+      }
+    }
+  ],
+  "verdict": {
+    "min_floor": 0.9941061679952111,
+    "max_floor": 0.9993225847673683,
+    "spread": 0.0052164167721572285,
+    "worst_image": "tiny_flat",
+    "best_image": "tiny_noisy",
+    "order_by_laplacian": [
+      "tiny_flat",
+      "tiny_smooth",
+      "tiny_noisy"
+    ],
+    "order_by_patch_mean_std": [
+      "tiny_noisy",
+      "tiny_smooth",
+      "tiny_flat"
+    ],
+    "order_by_floor": [
+      "tiny_flat",
+      "tiny_smooth",
+      "tiny_noisy"
+    ],
+    "floor_is_monotone_in_laplacian": true,
+    "published_tiny_floor": 0.994736746231073,
+    "tiny_smooth_reproduces_published_tiny": true
+  },
+  "persisted_tensors": {
+    "tiny_smooth": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/content_probe_tiny_smooth.npz",
+      "sha256": "8082c6ca789219313a469dcc025929214b76a0d241a9e6efe7605954dc242907",
+      "keys": [
+        "image_embeds_fp32",
+        "image_embeds_q8",
+        "pixel_values",
+        "pixel_attention_mask",
+        "spatial_shapes"
+      ]
+    },
+    "tiny_noisy": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/content_probe_tiny_noisy.npz",
+      "sha256": "d7ceb5dc13185d2cb23e092d95544afe586d05273c165205cd1215dbb4caa118",
+      "keys": [
+        "image_embeds_fp32",
+        "image_embeds_q8",
+        "pixel_values",
+        "pixel_attention_mask",
+        "spatial_shapes"
+      ]
+    },
+    "tiny_flat": {
+      "path": "/content/qwen3-embedding-0.6b-vl/native/oracle/content_probe_tiny_flat.npz",
+      "sha256": "d39ac259f939193f582714c05dafda4371485dff8932eeed96d9f6f4d55fc729",
+      "keys": [
+        "image_embeds_fp32",
+        "image_embeds_q8",
+        "pixel_values",
+        "pixel_attention_mask",
+        "spatial_shapes"
+      ]
+    }
+  },
+  "artifacts": {
+    "mmproj-qwen3-embedding-0.6b-vl-v1.0-q8_0.gguf": "9e3bb2fbfbc1dd7f43706a70c26534315ad886b0636f90a471391ea6a9c3782a",
+    "model.safetensors": "fd8469d3604876efe2ea92750c7c9fd5a2ab85c4508de9287334c91c566e6a05",
+    "tiny_smooth.png": "b4b9919cc54faf818e54cae101193ac5ca60b48891cc85b30d9cacf64720b95a",
+    "tiny_noisy.png": "c9e8ab5df99b2ab4c7982d4d4f51bcaa4622e3f87091d9feceafd94190f175e9",
+    "tiny_flat.png": "668c1370f4f35229e9eaf8d65e6016eb81fccc1b56cd2a5262a7eeb78e7ce40c"
+  }
+}
