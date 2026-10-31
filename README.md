@@ -21,21 +21,215 @@ tags:
 Production inference implementations for the dual-encoder embedding model
 `moeshawky/qwen3-embedding-0.6b-vl`. Two backends:
 
-| Backend | Text Path | Image Path | Acceleration |
-|---------|-----------|------------|--------------|
-| vLLM | Qwen3Model (28L, 1024H) + LastPool + CompatHead | SigLIP2VisionModel (27L, 1152H) direct CUDA | CUDA / Triton attention |
-| llama.cpp/GGML | Qwen3 GGUF + llama.cpp + compat head | SigLIP2 GGML graph + MAP pooling | CUDA / CPU |
+| Backend | Text Path | Image Path | Acceleration | Best For |
+|---------|-----------|------------|--------------|----------|
+| vLLM | Qwen3Model (28L, 1024H) + LastPool + CompatHead | SigLIP2VisionModel (27L, 1152H) direct CUDA | CUDA / Triton attention | Serving, batched requests, low latency |
+| llama.cpp/GGML | Qwen3 GGUF + llama.cpp + compat head | SigLIP2 GGML graph + MAP pooling | CUDA / CPU | Single-shot, CPU-only, embedded |
 
 Both branches produce **1024-dimensional L2-normalised** embeddings in a shared
-retrieval space. Text and image embeddings are comparable via a single dot product.
+retrieval space. Text and image embeddings are comparable via a single dot product —
+no modality-specific scoring head needed.
 
 > **Not a model weights repo.** This repository contains inference code, tests,
 > scripts, and documentation only. Model weights live at
-> `moeshawky/qwen3-embedding-0.6b-vl`.
+> `moeshawky/qwen3-embedding-0.6b-vl` and are referenced by digest in `SHA256SUMS`.
 
 ---
 
-## Critical Fix: Batched Terminal-Token Pooling
+## 1. What This Repo Contains
+
+| File / Dir | Purpose |
+|------------|---------|
+| `serve_vllm.sh` | Launch the vLLM embedding server (production path) |
+| `build_native.sh` | Build the native llama.cpp/GGML executable |
+| `run_native_text.sh` | Embed text via native binary |
+| `run_native_image.sh` | Embed images via native binary |
+| `benchmark.sh` | Measure latency, throughput, GPU memory |
+| `test_suite.py` | Shared correctness test suite (T1–T5) |
+| `requirements.txt` | Pinned Python dependencies |
+| `vllm/qwen3_vl_vllm/model.py` | vLLM model class (text + image) |
+| `vllm/qwen3_vl_vllm/preprocess.py` | NaFlex image preprocessing (bit-exact vs HF) |
+| `vllm/qwen3_vl_vllm/register.py` | vLLM ModelRegistry registration |
+| `vllm/server.py` | FastAPI server (`/v1/embeddings`, `/embed/image`) |
+| `qwen3-embedding-0.6b-vl-native/native/src/` | Native C++/GGML source |
+| `ARCHITECTURE.md` | Detailed architecture document |
+
+---
+
+## 2. Quick Start — vLLM Server (Recommended for Production)
+
+### 2.1 Install
+
+```bash
+pip install -r requirements.txt
+```
+
+Requirements: `torch==2.11.0`, `transformers==5.16.1`,
+`huggingface-hub>=1.5.0,<2.0`, `safetensors==0.8.0`, `numpy==2.1.3`,
+`Pillow==12.3.0`, `vllm==0.32.0`, `pytest==8.4.2`.
+
+### 2.2 Launch the Server
+
+```bash
+./serve_vllm.sh 8000
+```
+
+This starts a FastAPI server on `http://localhost:8000` using a single Tesla T4
+(float32, ~4s model initialisation, ~1.5 GiB KV cache at 0.4 utilisation).
+
+### 2.3 Text Embeddings (OpenAI-compatible)
+
+```bash
+curl -X POST http://localhost:8000/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": [
+      "a synthetic square gradient image with red, green and blue rectangles",
+      "a wide landscape photograph of a green field next to a blue sky",
+      "short text"
+    ],
+    "model": "qwen3-vl"
+  }'
+```
+
+**Response:**
+```json
+{
+  "object": "list",
+  "data": [
+    {"object": "embedding", "index": 0, "embedding": [0.123, ...]},
+    {"object": "embedding", "index": 1, "embedding": [0.456, ...]},
+    {"object": "embedding", "index": 2, "embedding": [0.789, ...]}
+  ],
+  "model": "qwen3-vl",
+  "usage": {"prompt_tokens": 42, "total_tokens": 42}
+}
+```
+
+Each embedding is a 1024-element float32 array with L2 norm ≈ 1.0.
+
+### 2.4 Image Embeddings (Custom Endpoint)
+
+```bash
+curl -X POST http://localhost:8000/embed/image \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image": "<base64-encoded PNG or JPEG>",
+    "model": "qwen3-vl"
+  }'
+```
+
+For multiple images, use `"images": ["<b64-1>", "<b64-2>", ...]`.
+
+**Response:**
+```json
+{
+  "object": "list",
+  "data": [
+    {"object": "embedding", "index": 0, "embedding": [0.123, ...]}
+  ],
+  "model": "qwen3-vl"
+}
+```
+
+### 2.5 Health Check
+
+```bash
+curl http://localhost:8000/health
+# -> {"status": "healthy", "model": "qwen3-siglip2-vl"}
+```
+
+---
+
+## 3. Quick Start — Native llama.cpp/GGML
+
+### 3.1 Build
+
+Choose CUDA (T4 acceleration) or CPU:
+
+```bash
+# CUDA backend — requires libcuda.so from NVIDIA driver
+./build_native.sh cuda
+#   -> qwen3-embedding-0.6b-vl-native/native/build_cuda/qwen3vl-embed
+
+# CPU backend — no special dependencies
+./build_native.sh cpu
+#   -> qwen3-embedding-0.6b-vl-native/native/build_cpu/qwen3vl-embed
+```
+
+### 3.2 Embed Text
+
+```bash
+./run_native_text.sh "a synthetic square gradient image with red, green and blue rectangles" cuda
+# Writes /tmp/native_run/text_text_embeds.npy (1024-d float32)
+```
+
+### 3.3 Embed Image
+
+```bash
+./run_native_image.sh /path/to/image.png cuda
+# Writes /tmp/native_out/<name>_image_embeds.npy (1024-d float32)
+```
+
+### 3.4 Read the Output
+
+```python
+import numpy as np
+emb = np.load("/tmp/native_run/text_text_embeds.npy")
+print(emb.shape)   # (1024,)
+print(np.linalg.norm(emb))  # ~1.0
+```
+
+---
+
+## 4. Python Client Example
+
+```python
+import base64
+import json
+import urllib.request
+from PIL import Image
+import io
+
+BASE = "http://localhost:8000"
+
+def embed_texts(texts):
+    data = json.dumps({"input": texts, "model": "qwen3-vl"}).encode()
+    req = urllib.request.Request(
+        f"{BASE}/v1/embeddings",
+        data=data,
+        headers={"Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req) as resp:
+        result = json.loads(resp.read())
+    return [item["embedding"] for item in result["data"]]
+
+def embed_image(path):
+    buf = io.BytesIO()
+    Image.open(path).convert("RGB").save(buf, format="PNG")
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    data = json.dumps({"image": b64, "model": "qwen3-vl"}).encode()
+    req = urllib.request.Request(
+        f"{BASE}/embed/image",
+        data=data,
+        headers={"Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req) as resp:
+        result = json.loads(resp.read())
+    return result["data"][0]["embedding"]
+
+# Usage
+text_emb = embed_texts(["hello world", "longer text here"])
+img_emb = embed_image("photo.jpg")
+
+# Cross-modal similarity (dot product in shared space)
+similarity = sum(a * b for a, b in zip(text_emb[0], img_emb))
+print(f"Text-image cosine: {similarity:.4f}")
+```
+
+---
+
+## 5. Critical Fix: Batched Terminal-Token Pooling
 
 A previous deployment passed `seq_len - 1` as the pooling index for every
 sequence in a batch. With right-padding, only the longest sequence pooled its
@@ -50,18 +244,64 @@ pool_index = (attention_mask != 0).long().sum(dim=-1) - 1
 
 vLLM's `LastPool` pooling method uses `seq_lens_cpu_upper_bound`, which
 correctly handles batched unequal-length sequences without padding tokens being
-scheduled.
+scheduled. No sequential HTTP unbundling is used — the workaround from the
+previous deployment is prohibited as the production solution.
 
 **Verified:** batch-vs-single cosine ≈ 1.00000000 for unequal-length sequences
 (T2 test, see `test_suite.py`).
 
 ---
 
-## Numerical Validation Results
+## 6. Testing — Shared Correctness Suite (T1–T5)
 
-All measurements below were executed against the canonical PyTorch reference
-model (`moeshawky/qwen3-embedding-0.6b-vl`, float32, CUDA Tesla T4). Every
-claim has a verification command.
+Run the full suite against the canonical PyTorch reference:
+
+```bash
+# vLLM backend
+python3 test_suite.py --backend vllm
+
+# Native backend (requires built binary + weight GGUFs)
+python3 test_suite.py --backend native \
+    --native-bin ./qwen3-embedding-0.6b-vl-native/native/build_cpu/qwen3vl-embed \
+    --mmproj ./mmproj-qwen3-embedding-0.6b-vl-v1.0-q8_0.gguf \
+    --text-model ./qwen3-embedding-0.6b-q8_0.gguf \
+    --compat-head ./qwen3-embedding-0.6b-vl-native/native/artifacts/compat_head_qwen3_embedding_0.6b.f32.gguf
+```
+
+| Test | Coverage | Verify |
+|------|----------|--------|
+| **T1** | Text: 16 reference prompts, single + batched | cosine ≥ 0.999 |
+| **T2** | Text adversarial: mixed lengths, repeats, position invariance, EOS | cosine ≥ 0.999 |
+| **T3** | Image: 6 NaFlex fixtures, end-to-end vs PyTorch reference | cosine ≥ 0.999 |
+| **T4** | Batch association: pairwise cosine matrix, response-to-input mapping | diagonal ≈ 1.0, correct mapping |
+| **T5** | Cross-modal retrieval: similarity matrix | informational (synthetic fixtures weak) |
+
+All tests use semantic input identity (not array position) for comparison.
+
+---
+
+## 7. Performance Benchmark
+
+```bash
+./benchmark.sh 8000
+```
+
+Measures single-request latency, batched throughput (batch sizes 1/2/4/8), and
+GPU memory usage on the running vLLM server.
+
+**Measured on 2× Tesla T4 (15360 MiB each), vLLM float32, single-GPU:**
+- Text embedding load: ~4s model initialisation
+- CUDA graph warmup: ~5s for 35 capture sizes
+- KV cache memory: ~1.5 GiB actual at 0.4 utilisation
+- Free GPU memory: ~14.5 GiB / 14.6 GiB at startup
+
+---
+
+## 8. Numerical Validation Results
+
+All measurements executed against the canonical PyTorch reference model
+(`moeshawky/qwen3-embedding-0.6b-vl`, float32, CUDA Tesla T4). Every claim
+has a verification command.
 
 ### vLLM Backend (float32, single Tesla T4)
 
@@ -80,7 +320,7 @@ All image embeddings have L2 norm ≈ 1.0 (verified per-vector).
 | Test | Description | Min Cosine | Status | Verify |
 |------|-------------|-----------|--------|--------|
 | Text | 16 reference prompts vs PyTorch reference | 0.99952 | PASS | `./run_native_text.sh <text> cpu` + compare |
-| Image | 6 NaFlex fixtures vs PyTorch reference | 0.99905 (square) | PASS on 5/6 | `./run_native_image.sh <img> cpu` + compare |
+| Image | 6 NaFlex fixtures vs PyTorch reference | 0.99905 (square) | PASS on 5/6 | `./run_native_image.sh  cpu` + compare |
 | Image | `tiny` fixture | 0.99476 | Q8 sidecar floor | See below |
 
 The `tiny` fixture (112×112, very smooth content) falls to the Q8_0 sidecar's
@@ -91,112 +331,7 @@ implementation defect.
 
 ---
 
-## Quick Start
-
-### Prerequisites
-
-```bash
-pip install -r requirements.txt
-```
-
-Requirements: `torch==2.11.0`, `transformers==5.16.1`, `huggingface-hub>=1.5.0,<2.0`,
-`safetensors==0.8.0`, `numpy==2.1.3`, `Pillow==12.3.0`, `vllm==0.32.0`,
-`pytest==8.4.2`.
-
-### vLLM Server
-
-```bash
-./serve_vllm.sh 8000
-```
-
-Endpoints (verified against running server):
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `POST /v1/embeddings` | JSON | Text embeddings (OpenAI-compatible) |
-| `POST /embed/image` | JSON | Image embeddings (base64-encoded input) |
-| `GET /health` | GET | Health check |
-
-Example text embedding:
-
-```bash
-curl -X POST http://localhost:8000/v1/embeddings \
-  -H "Content-Type: application/json" \
-  -d '{"input": ["hello world", "longer text"], "model": "qwen3-vl"}'
-```
-
-Returns `{"data": [{"index": 0, "embedding": [...]}, ...], "object": "list"}`.
-
-### Native (llama.cpp/GGML) Build & Run
-
-Build (choose CUDA for T4 acceleration, CPU otherwise):
-
-```bash
-./build_native.sh cuda    # CUDA backend — requires libcuda.so from NVIDIA driver
-./build_native.sh cpu     # CPU backend — no special dependencies
-```
-
-Run text:
-
-```bash
-./run_native_text.sh "a synthetic square gradient image" cuda
-```
-
-Run image:
-
-```bash
-./run_native_image.sh /path/to/image.png cuda
-```
-
-Both write a `.npy` file to `/tmp/native_run/` with the 1024-d embedding.
-
----
-
-## Testing
-
-Run the full shared correctness suite:
-
-```bash
-# vLLM backend (requires running vLLM engine via test_suite internals)
-python3 test_suite.py --backend vllm
-
-# Native backend
-python3 test_suite.py --backend native \
-    --native-bin ./qwen3-embedding-0.6b-vl-native/native/build_cpu/qwen3vl-embed \
-    --mmproj ./mmproj-qwen3-embedding-0.6b-vl-v1.0-q8_0.gguf \
-    --text-model ./qwen3-embedding-0.6b-q8_0.gguf \
-    --compat-head ./qwen3-embedding-0.6b-vl-native/native/artifacts/compat_head_qwen3_embedding_0.6b.f32.gguf
-```
-
-Test categories:
-
-| Test | Coverage |
-|------|----------|
-| T1 | Text: 16 reference prompts, single + batched |
-| T2 | Text adversarial: mixed lengths, repeats, position invariance, EOS |
-| T3 | Image: 6 NaFlex fixtures, end-to-end vs PyTorch reference |
-| T4 | Batch association: pairwise cosine matrix, response-to-input mapping |
-| T5 | Cross-modal retrieval: similarity matrix (informational; synthetic fixtures weak) |
-
----
-
-## Performance Benchmark
-
-```bash
-./benchmark.sh 8000
-```
-
-Measures single-request latency, batched throughput (batch sizes 1/2/4/8), and
-GPU memory usage on the vLLM server. Results printed to stdout.
-
-Measured on 2× Tesla T4 (15360 MiB each), vLLM float32, single-GPU:
-- Text embedding load: ~4s model initialisation
-- CUDA graph warmup: ~5s for 35 capture sizes
-- KV cache memory: ~1.5 GiB actual at 0.4 utilisation
-
----
-
-## Weight Integrity
+## 9. Weight Integrity
 
 No model weights are stored, modified, or retrained in this repository. All
 weights remain at `moeshawky/qwen3-embedding-0.6b-vl`:
@@ -212,7 +347,7 @@ SHA256 digests for all weight artifacts are in the weights repo's `SHA256SUMS`.
 
 ---
 
-## Rollback & Recovery
+## 10. Rollback & Recovery
 
 No checkpoint files have been altered. To rollback:
 
@@ -225,35 +360,7 @@ to `/tmp/` or local build directories.
 
 ---
 
-## File Layout
-
-```
-.
-├── README.md                 # This file (model card)
-├── ARCHITECTURE.md           # Detailed architecture document
-├── requirements.txt          # Pinned Python dependencies
-├── serve_vllm.sh             # vLLM server launch script
-├── build_native.sh           # Native llama.cpp/GGML build script
-├── run_native_text.sh        # Native text inference runner
-├── run_native_image.sh       # Native image inference runner
-├── benchmark.sh              # Performance benchmark script
-├── test_suite.py             # Shared correctness test suite (T1-T5)
-├── vllm/
-│   ├── qwen3_vl_vllm/
-│   │   ├── __init__.py
-│   │   ├── model.py          # vLLM model class (text + image)
-│   │   ├── preprocess.py     # NaFlex image preprocessing (bit-exact vs HF)
-│   │   └── register.py       # vLLM ModelRegistry registration
-│   ├── server.py             # FastAPI server (/v1/embeddings, /embed/image)
-│   ├── test_embedding.py     # vLLM text embedding test
-│   ├── test_image.py         # vLLM image embedding test
-│   └── test_image_direct.py  # Direct model component test
-└── qwen3-embedding-0.6b-vl-native/  # Native C++/GGML source (submodule layout)
-```
-
----
-
-## Known Limitations
+## 11. Known Limitations
 
 | # | Limitation | Details | Mitigation |
 |---|-----------|---------|------------|
@@ -264,15 +371,16 @@ to `/tmp/` or local build directories.
 
 ---
 
-## Verification
+## 12. Verification
 
 Every numerical claim in this card is backed by an executed test. Re-verify:
 
 ```bash
 # Full correctness suite (vLLM)
 python3 test_suite.py --backend vllm
+# Expects: exit code 0, all T1–T4 passing, T5 informational
 
-# Native image embedding vs reference (requires native binary)
+# Native image embedding vs reference
 ./run_native_image.sh ./qwen3-embedding-0.6b-vl-native/native/fixtures/square.png cpu
 # Then compare /tmp/native_out/square_image_embeds.npy against oracle_square.npz
 
@@ -283,12 +391,11 @@ curl http://localhost:8000/health
 **Last verified:** 2026-10-31 on 2× Tesla T4, vLLM 0.32.0, torch 2.11.0+cu128,
 transformers 5.16.1.
 
-**Verification command:** `python3 test_suite.py --backend vllm` (expects exit code 0,
-all T1–T4 passing, T5 informational).
+**Verification command:** `python3 test_suite.py --backend vllm`
 
 ---
 
-## Source Citations
+## 13. Source Citations
 
 - Model weights/config: `moeshawky/qwen3-embedding-0.6b-vl` — `model.safetensors`,
   `config.json`, `configuration_qwen_siglip2_embedding.py`,
