@@ -1,6 +1,6 @@
 ---
 license: other
-private: true
+private: false
 tags:
   - ggml
   - llama.cpp
@@ -11,9 +11,13 @@ tags:
 
 # qwen3-embedding-0.6b-vl — native (GGML) inference
 
-**Private work-in-progress repository.** It contains the native llama.cpp/GGML implementation
+**Public repository.** It contains the native llama.cpp/GGML implementation
 for [`moeshawky/qwen3-embedding-0.6b-vl`](https://huggingface.co/moeshawky/qwen3-embedding-0.6b-vl),
-the measurement harness that validates it, and the full handoff.
+the measurement harness that validates it, and the full handoff. Part of the
+Qwen3-SigLIP2-VL inference suite alongside
+[`moeshawky/qwen3-embedding-0.6b-vl-inference`](https://github.com/moeshawky/qwen3-embedding-0.6b-vl-inference)
+(vLLM backend) and [`moeshawky/qwen3-embedding-0.6b-vl`](https://huggingface.co/moeshawky/qwen3-embedding-0.6b-vl)
+(model weights).
 
 > **Start with [`HANDOFF.md`](HANDOFF.md)** (state, pitfalls, how to reproduce, open items) and
 > then [`NATIVE_PARITY_REPORT.md`](NATIVE_PARITY_REPORT.md) (every measured number with its control).
