@@ -30,9 +30,24 @@ Both branches produce **1024-dimensional L2-normalised** embeddings in a shared
 retrieval space. Text and image embeddings are comparable via a single dot product —
 no modality-specific scoring head needed.
 
+**Last updated: 2026-11-01**
+
 > **Not a model weights repo.** This repository contains inference code, tests,
 > scripts, and documentation only. Model weights live at
 > `moeshawky/qwen3-embedding-0.6b-vl` and are referenced by digest in `SHA256SUMS`.
+
+### Where each piece lives
+
+| Component | Repo | What you download |
+|-----------|------|-------------------|
+| Inference code (this repo) | `moeshawky/qwen3-embedding-0.6b-vl-inference` | vLLM backend, scripts, tests, docs |
+| Native GGML inference | `moeshawky/qwen3-embedding-0.6b-vl-native` | C++ source, compat head, fixtures, oracles — **no weights** |
+| Model weights | `moeshawky/qwen3-embedding-0.6b-vl` | text GGUF, vision sidecar GGUF, safetensors, ONNX |
+
+The native GGML repo (`moeshawky/qwen3-embedding-0.6b-vl-native`) contains **no model
+weights**. To run it you must also download the text GGUF and vision sidecar from the
+weights repo (`moeshawky/qwen3-embedding-0.6b-vl`). The compat head (4.2 MB) ships inside
+the native repo.
 
 ---
 
@@ -396,11 +411,11 @@ transformers 5.16.1.
 
 ## 14. Public Repositories
 
-| Repo | Platform | Visibility | Purpose |
-|------|----------|------------|---------|
-| `moeshawky/qwen3-embedding-0.6b-vl-inference` | GitHub | Public | This repo — inference code, scripts, tests, docs |
-| `moeshawky/qwen3-embedding-0.6b-vl-native` | Hugging Face | Public | Native C++/GGML source, artifacts, CPU binary, oracles |
-| `moeshawky/qwen3-embedding-0.6b-vl` | Hugging Face | Public | Model weights (4.1 GB safetensors + GGUFs + ONNX + parity reports) |
+| Repo | Platform | Visibility | Last updated | Purpose |
+|------|----------|------------|--------------|---------|
+| `moeshawky/qwen3-embedding-0.6b-vl-inference` | GitHub | Public | 2026-11-01 | This repo — inference code, scripts, tests, docs |
+| `moeshawky/qwen3-embedding-0.6b-vl-native` | Hugging Face | Public | 2026-11-01 | Native C++/GGML source, artifacts, CPU binary, oracles — no weights |
+| `moeshawky/qwen3-embedding-0.6b-vl` | Hugging Face | Public | 2026-11-01 | Model weights (4.1 GB safetensors + GGUFs + ONNX + parity reports) |
 
 Clone and run:
 
@@ -411,11 +426,16 @@ cd qwen3-embedding-0.6b-vl-inference
 pip install -r requirements.txt
 ./serve_vllm.sh 8000
 
-# Native inference (HF)
+# Native inference (HF) — requires weights from the weights repo too
 hf download moeshawky/qwen3-embedding-0.6b-vl-native --local-dir ./native
-./native/native/build_cpu/qwen3vl-embed --text-model <gguf> --compat-head <head> --text "..." --stem text --out /tmp/out --threads 2
+hf download moeshawky/qwen3-embedding-0.6b-vl \
+  qwen3-embedding-0.6b-q8_0.gguf mmproj-qwen3-embedding-0.6b-vl-v1.0-q8_0.gguf \
+  --local-dir ./weights
+./native/native/build_cpu/qwen3vl-embed --text-model ./weights/qwen3-embedding-0.6b-q8_0.gguf \
+  --compat-head ./native/native/artifacts/compat_head_qwen3_embedding_0.6b.f32.gguf \
+  --text "..." --stem text --out /tmp/out --threads 2
 
-# Model weights (HF)
+# Model weights only (HF)
 hf download moeshawky/qwen3-embedding-0.6b-vl --local-dir ./weights
 ```
 
