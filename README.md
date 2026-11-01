@@ -294,6 +294,7 @@ GPU memory usage on the running vLLM server.
 - CUDA graph warmup: ~5s for 35 capture sizes
 - KV cache memory: ~1.5 GiB actual at 0.4 utilisation
 - Free GPU memory: ~14.5 GiB / 14.6 GiB at startup
+- Native CUDA build: shared libraries compiled (`libggml-cuda.so`, `libllama.so`); final binary link pending as of 2026-11-01
 
 ---
 
@@ -388,10 +389,35 @@ python3 test_suite.py --backend vllm
 curl http://localhost:8000/health
 ```
 
-**Last verified:** 2026-10-31 on 2× Tesla T4, vLLM 0.32.0, torch 2.11.0+cu128,
+**Last verified:** 2026-11-01 on 2× Tesla T4, vLLM 0.32.0, torch 2.11.0+cu128,
 transformers 5.16.1.
 
 **Verification command:** `python3 test_suite.py --backend vllm`
+
+## 14. Public Repositories
+
+| Repo | Platform | Visibility | Purpose |
+|------|----------|------------|---------|
+| `moeshawky/qwen3-embedding-0.6b-vl-inference` | GitHub | Public | This repo — inference code, scripts, tests, docs |
+| `moeshawky/qwen3-embedding-0.6b-vl-native` | Hugging Face | Public | Native C++/GGML source, artifacts, CPU binary, oracles |
+| `moeshawky/qwen3-embedding-0.6b-vl` | Hugging Face | Public | Model weights (4.1 GB safetensors + GGUFs + ONNX + parity reports) |
+
+Clone and run:
+
+```bash
+# Inference code (this repo)
+git clone https://github.com/moeshawky/qwen3-embedding-0.6b-vl-inference.git
+cd qwen3-embedding-0.6b-vl-inference
+pip install -r requirements.txt
+./serve_vllm.sh 8000
+
+# Native inference (HF)
+hf download moeshawky/qwen3-embedding-0.6b-vl-native --local-dir ./native
+./native/native/build_cpu/qwen3vl-embed --text-model <gguf> --compat-head <head> --text "..." --stem text --out /tmp/out --threads 2
+
+# Model weights (HF)
+hf download moeshawky/qwen3-embedding-0.6b-vl --local-dir ./weights
+```
 
 ---
 
